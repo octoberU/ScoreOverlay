@@ -45,6 +45,7 @@ namespace AudicaModding
         public static ScoreKeeperDisplay scoreKeeperDisplay;
         public static TextMeshProUGUI ScoreTextField;
         public static TextMeshProUGUI ComboLabelField;
+        public static TextMeshProUGUI AverageTimingText;
         public static List<float> TimingError = new List<float>();
 
         public static CanvasGroup OverlayGroup;
@@ -52,6 +53,7 @@ namespace AudicaModding
         public static float maxTimingBarLength = 250f;
         static ObservableCollection<GameObject> HitRectangles = new ObservableCollection<GameObject>();
         public static float timingBarSize = 1.8f;
+        public float timingBarHeight = 1.5f;
 
         public override void OnApplicationStart()
         {
@@ -82,8 +84,13 @@ namespace AudicaModding
 
             SongCues.Cue targetCue = new SongCues.Cue(cue);
             float TargetError = (float)targetCue.tick - tick;
-            MelonModLogger.Log("Timing Error = " + TargetError.ToString());
-            MoveHitRect(TargetError, KataConfig.I.GetTargetColor(targetCue.handType));
+            //MelonModLogger.Log("Timing Error = " + TargetError.ToString());
+            TimingError.Add(TargetError);
+            if(TimingError.Count > 1)
+            {
+                AverageTimingText.text = TimingError.Average().ToString("F") + "ms";
+            }
+            MoveHitRect(TargetError * -1, KataConfig.I.GetTargetColor(targetCue.handType));
         }
 
         public static void playsong2(IntPtr @this)
@@ -101,6 +108,7 @@ namespace AudicaModding
             {
                 MelonCoroutines.Start(StartScoreDisplay());
             }
+            TimingError.Clear();
         }
 
         public static void ReturnToSongs(IntPtr @this)
@@ -112,8 +120,7 @@ namespace AudicaModding
                 GameObject.Destroy(myCanvas);
                 scoreDisplayEnabled = false;
             }
-
-
+            TimingError.Clear();
         }
 
         static IEnumerator StartScoreDisplay()
@@ -270,6 +277,17 @@ namespace AudicaModding
             HitRect.GetComponent<Image>().color = new Color32(255, 255, 255, 125);
             HitRect.GetComponent<RectTransform>().sizeDelta = new Vector2(3.3f, 30.3f);
             HitRect.SetActive(false);
+
+            GameObject AverageTiming = new GameObject();
+            AverageTiming.transform.SetParent(TimingBar.transform);
+            AverageTiming.name = "Average Timing";
+            ScoreOverlay.AverageTimingText = AverageTiming.AddComponent<TextMeshProUGUI>();
+            ScoreOverlay.AverageTimingText.text = "";
+            ScoreOverlay.AverageTimingText.font = specCam.headsetCameraModeDisplay.font;
+            ScoreOverlay.AverageTimingText.fontStyle = FontStyles.Superscript;
+            ScoreOverlay.AverageTimingText.alignment = TextAlignmentOptions.Bottom;
+            ScoreOverlay.AverageTimingText.fontSize = 14;
+            AverageTiming.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 43.4f);
 
             TimingDisplayTransform.anchoredPosition = new Vector2(0f, 50f);
             TimingDisplayTransform.localScale = new Vector3(timingBarSize, timingBarSize, timingBarSize);
