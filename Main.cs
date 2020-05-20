@@ -115,10 +115,10 @@ namespace AudicaModding
         {
             ScoreOverlay.goToSongs2.InvokeOriginal(@this);
             MelonModLogger.Log("DEBUG");
+            scoreDisplayEnabled = false;
             if (myCanvas != null)
             {
-                GameObject.Destroy(myCanvas);
-                scoreDisplayEnabled = false;
+                GameObject.Destroy(myCanvas);           
             }
             TimingError.Clear();
         }
