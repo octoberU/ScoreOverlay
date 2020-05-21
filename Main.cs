@@ -28,7 +28,7 @@ namespace AudicaModding
         public const string Name = "ScoreOverlay"; // Name of the Mod.  (MUST BE SET)
         public const string Author = "octo"; // Author of the Mod.  (Set as null if none)
         public const string Company = null; // Company that made the Mod.  (Set as null if none)
-        public const string Version = "1.0.4"; // Version of the Mod.  (MUST BE SET)
+        public const string Version = "1.0.5"; // Version of the Mod.  (MUST BE SET)
         public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
     }
 
@@ -139,7 +139,7 @@ namespace AudicaModding
             if (!scoreDisplayEnabled)
             {
                 yield return new WaitForSeconds(5);
-                InitializeScoreDisplay();
+                 MelonCoroutines.Start(InitializeScoreDisplay());
             }
             else
             {
@@ -148,7 +148,7 @@ namespace AudicaModding
                 yield return new WaitForSeconds(5);
                 if (!scoreDisplayEnabled)
                 {
-                    InitializeScoreDisplay();
+                     MelonCoroutines.Start(InitializeScoreDisplay());
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace AudicaModding
             }
         }
 
-        public static void InitializeScoreDisplay()
+        public static IEnumerator InitializeScoreDisplay()
         {
             if (myCanvas != null)
             {
@@ -320,6 +320,7 @@ namespace AudicaModding
 
             MelonCoroutines.Start(FadeOverlay(0f, 1f, 2f));
             MelonCoroutines.Start(MoveOverlay(2f));
+            yield return null;
         }
     }
 }
