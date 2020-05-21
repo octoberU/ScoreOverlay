@@ -140,7 +140,6 @@ namespace AudicaModding
                     InitializeScoreDisplay();
                 }
             }
-
         }
 
         public static IEnumerator FadeOverlay(float aFrom, float aTo, float aTime)
@@ -292,7 +291,7 @@ namespace AudicaModding
             TimingDisplayTransform.anchoredPosition = new Vector2(0f, 50f);
             TimingDisplayTransform.localScale = new Vector3(timingBarSize, timingBarSize, timingBarSize);
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 20; i++)
             {
                 HitRectangles.Add(UnityEngine.Object.Instantiate(HitRect, TimingBar.transform));
             }
