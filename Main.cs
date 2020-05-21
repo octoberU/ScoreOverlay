@@ -81,16 +81,19 @@ namespace AudicaModding
                 new IntPtr((void*)(&tick)),
                 new IntPtr((void*)(&targetHitPos))
             });
-
-            SongCues.Cue targetCue = new SongCues.Cue(cue);
-            float TargetError = (float)targetCue.tick - tick;
-            //MelonModLogger.Log("Timing Error = " + TargetError.ToString());
-            TimingError.Add(TargetError);
-            if(TimingError.Count > 1)
+            if (!KataConfig.I.practiceMode)
             {
-                AverageTimingText.text = TimingError.Average().ToString("F") + "ms";
+                SongCues.Cue targetCue = new SongCues.Cue(cue);
+                float TargetError = (float)targetCue.tick - tick;
+                //MelonModLogger.Log("Timing Error = " + TargetError.ToString());
+                TimingError.Add(TargetError);
+                if (TimingError.Count > 1)
+                {
+                    AverageTimingText.text = TimingError.Average().ToString("F") + "ms";
+                }
+                MoveHitRect(TargetError * -1, KataConfig.I.GetTargetColor(targetCue.handType));
             }
-            MoveHitRect(TargetError * -1, KataConfig.I.GetTargetColor(targetCue.handType));
+
         }
 
         public static void playsong2(IntPtr @this)
@@ -110,6 +113,11 @@ namespace AudicaModding
             {
                 MelonCoroutines.Start(StartScoreDisplay());
             }
+            if (myCanvas != null)
+            {
+                GameObject.Destroy(myCanvas);
+                scoreDisplayEnabled = false;
+            }
             HitRectangles.Clear();
             TimingError.Clear();
         }
@@ -117,12 +125,11 @@ namespace AudicaModding
         public static void ReturnToSongs(IntPtr @this)
         {
             ScoreOverlay.goToSongs2.InvokeOriginal(@this);
-            MelonModLogger.Log("DEBUG");
-            scoreDisplayEnabled = false;
             if (myCanvas != null)
             {
                 GameObject.Destroy(myCanvas);           
             }
+            scoreDisplayEnabled = false;
             HitRectangles.Clear();
             TimingError.Clear();
         }
