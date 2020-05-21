@@ -100,6 +100,8 @@ namespace AudicaModding
             {
                 MelonCoroutines.Start(StartScoreDisplay());
             }
+            HitRectangles.Clear();
+            TimingError.Clear();
         }
         public static void RestartSong2(IntPtr @this)
         {
@@ -108,6 +110,7 @@ namespace AudicaModding
             {
                 MelonCoroutines.Start(StartScoreDisplay());
             }
+            HitRectangles.Clear();
             TimingError.Clear();
         }
 
@@ -120,6 +123,7 @@ namespace AudicaModding
             {
                 GameObject.Destroy(myCanvas);           
             }
+            HitRectangles.Clear();
             TimingError.Clear();
         }
 
