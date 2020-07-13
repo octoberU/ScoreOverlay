@@ -1,25 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Collections;
-using System.Threading;
 using System.Globalization;
 using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using UnityEngine.SceneManagement;
-using NET_SDK;
-using NET_SDK.Harmony;
-using NET_SDK.Reflection;
-using System.Runtime.InteropServices;
-using UnityEngine.PostProcessing;
-using System.Linq;
-using Valve.VR;
+using Harmony;
 using System.Collections.ObjectModel;
 using TMPro;
-
-
 
 namespace AudicaModding
 {
@@ -35,11 +22,7 @@ namespace AudicaModding
     public class ScoreOverlay : MelonMod
     {
         public static GameObject myCanvas;
-        public static Patch LaunchPlay2;
-        public static Patch Restart2;
-        public static Patch goToSongs2;
-        public static Patch PauseHandler_HMDMounted;
-        private static bool scoreDisplayEnabled = false;
+        public static bool scoreDisplayEnabled = false;
         public static ScoreKeeper scoreKeeper;
         public static GameplayStats gameplayStats;
         public static ScoreKeeperDisplay scoreKeeperDisplay;
@@ -51,101 +34,68 @@ namespace AudicaModding
         public static CanvasGroup OverlayGroup;
         public static RectTransform OverlayTransform;
         public static float maxTimingBarLength = 250f;
-        static ObservableCollection<GameObject> HitRectangles = new ObservableCollection<GameObject>();
-        public static float timingBarSize = 1.8f;
+        public static ObservableCollection<GameObject> HitRectangles = new ObservableCollection<GameObject>();
+        public static float timingBarSize = 1.6f;
         public float timingBarHeight = 1.5f;
+        public static bool showTimingBar;
+        static private Color comboColor;
 
         public override void OnApplicationStart()
         {
-            MelonModLogger.Log("OnApplicationStart");
-
-            Instance instance = Manager.CreateInstance("ScoreOverlay2");
-            ScoreOverlay.LaunchPlay2 = instance.Patch(SDK.GetClass("LaunchPanel").GetMethod("Play"), typeof(ScoreOverlay).GetMethod("playsong2"));
-            ScoreOverlay.Restart2 = instance.Patch(SDK.GetClass("InGameUI").GetMethod("Restart"), typeof(ScoreOverlay).GetMethod("RestartSong2"));
-            ScoreOverlay.goToSongs2 = instance.Patch(SDK.GetClass("InGameUI").GetMethod("ReturnToSongList"), typeof(ScoreOverlay).GetMethod("ReturnToSongs"));
-            PauseHandler_HMDMounted = instance.Patch(SDK.GetClass("GameplayStats").GetMethod("ReportTargetHit"), typeof(ScoreOverlay).GetMethod("ReportTargetHit"));
-        }
-
-        private static void MoveHitRect(float Timing, Color handColor)
-        {
-            HitRectangles.Move(HitRectangles.Count - 1, 0);
-            HitRectangles[0].SetActive(true);
-            HitRectangles[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(Timing, 0f);
-            HitRectangles[0].GetComponent<Image>().color = handColor;
-        }
-
-        public unsafe static void ReportTargetHit(IntPtr @this, IntPtr cue, float tick, Vector2 targetHitPos)
-        {
-            PauseHandler_HMDMounted.InvokeOriginal(@this, new IntPtr[] {
-                cue,
-                new IntPtr((void*)(&tick)),
-                new IntPtr((void*)(&targetHitPos))
-            });
-            if (!KataConfig.I.practiceMode)
+            var i = HarmonyInstance.Create("ScoreOverlay");
+            Hooks.ApplyHooks(i);
+            if (!ModPrefs.HasKey("ScoreOverlay", "TimingBarSize"))
             {
-                SongCues.Cue targetCue = new SongCues.Cue(cue);
-                float TargetError = (float)targetCue.tick - tick;
-                //MelonModLogger.Log("Timing Error = " + TargetError.ToString());
-                TimingError.Add(TargetError);
-                if (TimingError.Count > 1)
-                {
-                    AverageTimingText.text = TimingError.Average().ToString("F") + "ms";
-                }
-                MoveHitRect(TargetError * -1, KataConfig.I.GetTargetColor(targetCue.handType));
+                CreateConfig();
+                LoadConfig();
             }
-
+            else
+            {
+                LoadConfig();
+            }
         }
-
-        public static void playsong2(IntPtr @this)
+        private void CreateConfig()
         {
-            ScoreOverlay.LaunchPlay2.InvokeOriginal(@this);
-            if (!KataConfig.I.practiceMode)
-            {
-                MelonCoroutines.Start(StartScoreDisplay());
-            }
-            HitRectangles.Clear();
-            TimingError.Clear();
+            ModPrefs.RegisterPrefFloat("ScoreOverlay", "TimingBarSize", 1.4f);
+            ModPrefs.RegisterPrefBool("ScoreOverlay", "ShowTimingBar", false);
+            ModPrefs.RegisterPrefFloat("ScoreOverlay", "Combo_R", 1f);
+            ModPrefs.RegisterPrefFloat("ScoreOverlay", "Combo_G", 0.91f);
+            ModPrefs.RegisterPrefFloat("ScoreOverlay", "Combo_B", 0.27f);
         }
-        public static void RestartSong2(IntPtr @this)
+        private void LoadConfig()
         {
-            ScoreOverlay.Restart2.InvokeOriginal(@this);
-            if (!KataConfig.I.practiceMode)
-            {
-                MelonCoroutines.Start(StartScoreDisplay());
-            }
-            if (myCanvas != null)
-            {
-                GameObject.Destroy(myCanvas);
-                scoreDisplayEnabled = false;
-            }
-            HitRectangles.Clear();
-            TimingError.Clear();
+            timingBarSize = ModPrefs.GetFloat("ScoreOverlay", "TimingBarSize");
+            showTimingBar = ModPrefs.GetBool("ScoreOverlay", "ShowTimingBar");
+            comboColor = new Color(
+                ModPrefs.GetFloat("ScoreOverlay", "Combo_R"),
+                ModPrefs.GetFloat("ScoreOverlay", "Combo_G"),
+                ModPrefs.GetFloat("ScoreOverlay", "Combo_B"),
+                1f);
         }
 
-        public static void ReturnToSongs(IntPtr @this)
+        public static void MoveHitRect(float Timing, Color handColor)
         {
-            ScoreOverlay.goToSongs2.InvokeOriginal(@this);
-            if (myCanvas != null)
+            if (showTimingBar)
             {
-                GameObject.Destroy(myCanvas);           
+                HitRectangles.Move(HitRectangles.Count - 1, 0);
+                HitRectangles[0].SetActive(true);
+                HitRectangles[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(Timing, 0f);
+                HitRectangles[0].GetComponent<Image>().color = handColor; 
             }
-            scoreDisplayEnabled = false;
-            HitRectangles.Clear();
-            TimingError.Clear();
         }
 
-        static IEnumerator StartScoreDisplay()
+        public static IEnumerator StartScoreDisplay()
         {
             if (!scoreDisplayEnabled)
             {
-                yield return new WaitForSeconds(5);
+                 yield return null;//new WaitForSeconds(5);
                  MelonCoroutines.Start(InitializeScoreDisplay());
             }
             else
             {
                 GameObject.Destroy(myCanvas);
                 scoreDisplayEnabled = false;
-                yield return new WaitForSeconds(5);
+                yield return null;//new WaitForSeconds(5);
                 if (!scoreDisplayEnabled)
                 {
                      MelonCoroutines.Start(InitializeScoreDisplay());
@@ -243,68 +193,70 @@ namespace AudicaModding
             ScoreOverlay.ComboLabelField = ComboLabel.GetComponent<TextMeshProUGUI>();
             ComboLabelField.text = "";
             ComboLabelField.fontSize = 32;
-            ComboLabelField.color = new Color32(255, 232, 70, 255);
+            ComboLabelField.color = comboColor;
             ComboLabelRect.anchoredPosition = new Vector2(2, -12);
 
-
-            GameObject TimingDisplay = new GameObject();
-            TimingDisplay.name = "TimingDisplay";
-            TimingDisplay.transform.SetParent(myCanvas.transform);
-            RectTransform TimingDisplayTransform = TimingDisplay.AddComponent<RectTransform>();
-            TimingDisplayTransform.anchorMax = new Vector2(0.5f, 0);
-            TimingDisplayTransform.anchorMin = new Vector2(0.5f, 0);
-
-
-            GameObject TimingBar = new GameObject();
-            TimingBar.name = "TimingBar";
-            TimingBar.transform.SetParent(TimingDisplay.transform);
-            RectTransform TimingBarTransform = TimingBar.AddComponent<RectTransform>();
-            TimingBarTransform.anchorMax = new Vector2(0.5f, 0);
-            TimingBarTransform.anchorMin = new Vector2(0.5f, 0);
-
-            GameObject OrangeBar = new GameObject();
-            OrangeBar.name = "OrangeBar";
-            OrangeBar.transform.SetParent(TimingBar.transform);
-            Image OrangeBarImage = OrangeBar.AddComponent<Image>();
-            RectTransform OrangeBarTransform = OrangeBar.GetComponent<RectTransform>();
-            OrangeBarTransform.sizeDelta = new Vector2(maxTimingBarLength, 1.5f);
-            OrangeBarTransform.anchoredPosition = new Vector2(0f, 0f);
-            OrangeBarImage.color = new Color32(255, 255, 255, 255); // new Color32(255, 187, 0, 255);
-
-            GameObject YellowBar = UnityEngine.Object.Instantiate(OrangeBar, TimingBar.transform);
-            YellowBar.name = "YellowBar";
-            YellowBar.GetComponent<Image>().color = new Color32(255, 255, 255, 255); // new Color32(255, 251, 37, 255);
-            YellowBar.GetComponent<RectTransform>().sizeDelta = new Vector2(maxTimingBarLength * 0.7f, 1.5f);
-
-            GameObject GreenBar = UnityEngine.Object.Instantiate(OrangeBar, TimingBar.transform);
-            GreenBar.name = "GreenBar";
-            GreenBar.GetComponent<Image>().color = new Color32(255, 255, 255, 255); // new Color32(142, 248, 67, 255);
-            GreenBar.GetComponent<RectTransform>().sizeDelta = new Vector2(maxTimingBarLength * 0.25f, 1.5f);
-
-
-            GameObject HitRect = UnityEngine.Object.Instantiate(OrangeBar, TimingBar.transform);
-            HitRect.name = "HitRect";
-            HitRect.GetComponent<Image>().color = new Color32(255, 255, 255, 125);
-            HitRect.GetComponent<RectTransform>().sizeDelta = new Vector2(3.3f, 30.3f);
-            HitRect.SetActive(false);
-
-            GameObject AverageTiming = new GameObject();
-            AverageTiming.transform.SetParent(TimingBar.transform);
-            AverageTiming.name = "Average Timing";
-            ScoreOverlay.AverageTimingText = AverageTiming.AddComponent<TextMeshProUGUI>();
-            ScoreOverlay.AverageTimingText.text = "";
-            ScoreOverlay.AverageTimingText.font = specCam.headsetCameraModeDisplay.font;
-            ScoreOverlay.AverageTimingText.fontStyle = FontStyles.Superscript;
-            ScoreOverlay.AverageTimingText.alignment = TextAlignmentOptions.Bottom;
-            ScoreOverlay.AverageTimingText.fontSize = 14;
-            AverageTiming.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 43.4f);
-
-            TimingDisplayTransform.anchoredPosition = new Vector2(0f, 50f);
-            TimingDisplayTransform.localScale = new Vector3(timingBarSize, timingBarSize, timingBarSize);
-
-            for (int i = 0; i < 20; i++)
+            if (ScoreOverlay.showTimingBar)
             {
-                HitRectangles.Add(UnityEngine.Object.Instantiate(HitRect, TimingBar.transform));
+                GameObject TimingDisplay = new GameObject();
+                TimingDisplay.name = "TimingDisplay";
+                TimingDisplay.transform.SetParent(myCanvas.transform);
+                RectTransform TimingDisplayTransform = TimingDisplay.AddComponent<RectTransform>();
+                TimingDisplayTransform.anchorMax = new Vector2(0.5f, 0);
+                TimingDisplayTransform.anchorMin = new Vector2(0.5f, 0);
+
+
+                GameObject TimingBar = new GameObject();
+                TimingBar.name = "TimingBar";
+                TimingBar.transform.SetParent(TimingDisplay.transform);
+                RectTransform TimingBarTransform = TimingBar.AddComponent<RectTransform>();
+                TimingBarTransform.anchorMax = new Vector2(0.5f, 0);
+                TimingBarTransform.anchorMin = new Vector2(0.5f, 0);
+
+                GameObject OrangeBar = new GameObject();
+                OrangeBar.name = "OrangeBar";
+                OrangeBar.transform.SetParent(TimingBar.transform);
+                Image OrangeBarImage = OrangeBar.AddComponent<Image>();
+                RectTransform OrangeBarTransform = OrangeBar.GetComponent<RectTransform>();
+                OrangeBarTransform.sizeDelta = new Vector2(maxTimingBarLength, 1.5f);
+                OrangeBarTransform.anchoredPosition = new Vector2(0f, 0f);
+                OrangeBarImage.color = new Color32(255, 255, 255, 255); // new Color32(255, 187, 0, 255);
+
+                GameObject YellowBar = UnityEngine.Object.Instantiate(OrangeBar, TimingBar.transform);
+                YellowBar.name = "YellowBar";
+                YellowBar.GetComponent<Image>().color = new Color32(255, 255, 255, 255); // new Color32(255, 251, 37, 255);
+                YellowBar.GetComponent<RectTransform>().sizeDelta = new Vector2(maxTimingBarLength * 0.7f, 1.5f);
+
+                GameObject GreenBar = UnityEngine.Object.Instantiate(OrangeBar, TimingBar.transform);
+                GreenBar.name = "GreenBar";
+                GreenBar.GetComponent<Image>().color = new Color32(255, 255, 255, 255); // new Color32(142, 248, 67, 255);
+                GreenBar.GetComponent<RectTransform>().sizeDelta = new Vector2(maxTimingBarLength * 0.25f, 1.5f);
+
+
+                GameObject HitRect = UnityEngine.Object.Instantiate(OrangeBar, TimingBar.transform);
+                HitRect.name = "HitRect";
+                HitRect.GetComponent<Image>().color = new Color32(255, 255, 255, 125);
+                HitRect.GetComponent<RectTransform>().sizeDelta = new Vector2(3.3f, 30.3f);
+                HitRect.SetActive(false);
+
+                GameObject AverageTiming = new GameObject();
+                AverageTiming.transform.SetParent(TimingBar.transform);
+                AverageTiming.name = "Average Timing";
+                ScoreOverlay.AverageTimingText = AverageTiming.AddComponent<TextMeshProUGUI>();
+                ScoreOverlay.AverageTimingText.text = "";
+                ScoreOverlay.AverageTimingText.font = specCam.headsetCameraModeDisplay.font;
+                ScoreOverlay.AverageTimingText.fontStyle = FontStyles.Superscript;
+                ScoreOverlay.AverageTimingText.alignment = TextAlignmentOptions.Bottom;
+                ScoreOverlay.AverageTimingText.fontSize = 14;
+                AverageTiming.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 43.4f);
+
+                TimingDisplayTransform.anchoredPosition = new Vector2(0f, 50f);
+                TimingDisplayTransform.localScale = new Vector3(timingBarSize, timingBarSize, timingBarSize);
+
+                for (int i = 0; i < 20; i++)
+                {
+                    HitRectangles.Add(UnityEngine.Object.Instantiate(HitRect, TimingBar.transform));
+                } 
             }
 
             canvasComp.renderMode = RenderMode.ScreenSpaceOverlay;
