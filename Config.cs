@@ -1,10 +1,5 @@
 ﻿using MelonLoader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScoreOverlay
 {
@@ -25,6 +20,8 @@ namespace ScoreOverlay
             MelonPrefs.RegisterBool(Category, nameof(ShowSongInfo), true, "Display song info during gameplay.");
 
             MelonPrefs.RegisterFloat(Category, nameof(OverlayScale), 1.4f, "Changes the scale of the overlay");
+
+            OnModSettingsApplied();
         }
 
         public static void OnModSettingsApplied()

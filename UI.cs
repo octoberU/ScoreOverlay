@@ -17,6 +17,8 @@ namespace ScoreOverlay
         public static GameObject overlay;
         private static GameplayStats gameplayStats;
 
+        private static KataConfig kataConfig;
+
         public static Canvas mainCanvas;
         public static CanvasScaler canvasScaler;
         public static CanvasGroup canvasGroup;
@@ -50,8 +52,10 @@ namespace ScoreOverlay
             GetReferences();
             canvasScaler.scaleFactor = ScoreOverlayConfig.OverlayScale;
             FadeOutOverlay();
+            overlay.SetActive(false);
             bottomRight.gameObject.SetActive(false);
-            topLeft.gameObject.SetActive(false);
+            topLeft.gameObject.SetActive(ScoreOverlayConfig.ShowModifiers);
+            kataConfig = KataConfig.I;
         }
         
         public static void PrepareOverlay()
@@ -98,6 +102,7 @@ namespace ScoreOverlay
 
         public static void FadeInOverlay()
         {
+            if(!overlay.activeSelf) overlay.SetActive(true);
             animator.Play("FadeIn");
         }
 
@@ -108,7 +113,6 @@ namespace ScoreOverlay
 
         public static void UpdateUiInfo(SongList.SongData data)
         {
-            KataConfig kataConfig = KataConfig.I;
 
             songInfo.text = Utility.RemoveFormatting($"{data.artist} - {data.title}");
             mapperInfo.text = data.author;
@@ -124,11 +128,10 @@ namespace ScoreOverlay
         }
 
 
-        public static void UpdateDisplay()
+        public static void UpdateDisplay(int score, int streak)
         {
-            var scoreKeeper = ScoreKeeper.I;
-            scoreText.text = scoreKeeper.mScore.ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
-            comboText.text = scoreKeeper.mStreak > 1 ? scoreKeeper.mStreak.ToString() + " Streak!" : "";
+            scoreText.text = score.ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
+            comboText.text = streak > 1 ? streak.ToString() + " Streak!" : "";
             if (gameplayStats == null) GameObject.FindObjectOfType<GameplayStats>();
             if (gameplayStats != null)
             {
