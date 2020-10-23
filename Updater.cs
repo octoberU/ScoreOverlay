@@ -14,8 +14,37 @@ namespace ScoreOverlay
             {
                 if (UI.loaded)
                 {
+                    UI.UpdateUiInfo(SongDataHolder.I.songData);
                     UI.FadeInOverlay();
+                    
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(InGameUI), "ReturnToSongList", new Type[0])]
+        private static class ReturnToSongList
+        {
+            private static void Postfix(InGameUI __instance)
+            {
+                UI.FadeOutOverlay();
+            }
+        }
+
+        [HarmonyPatch(typeof(InGameUI), "Restart", new Type[0])]
+        private static class Restart
+        {
+            private static void Postfix(InGameUI __instance)
+            {
+                UI.FadeOutOverlay();
+            }
+        }
+
+        [HarmonyPatch(typeof(ScoreKeeperDisplay), "UpdateStreak", new Type[0])]
+        private static class ScoreKeeperDisplayUpdate
+        {
+            private static void Postfix(ScoreKeeperDisplay __instance)
+            {
+                UI.UpdateDisplay();
             }
         }
     }
