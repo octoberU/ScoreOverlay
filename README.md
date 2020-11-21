@@ -1,6 +1,6 @@
 # Audica Score Overlay
 
-This template bundles melon-mod and a simple dll-building C# solution + csproj.
+
 
 ## Installation
 
