@@ -17,7 +17,7 @@ namespace ScoreOverlay
 
         public override void OnApplicationStart()
         {
-            ScoreOverlayConfig.RegisterConfig();
+            Config.RegisterConfig();
         }
 
         public override void OnLevelWasInitialized(int level)
@@ -27,7 +27,7 @@ namespace ScoreOverlay
 
         public override void OnModSettingsApplied()
         {
-            ScoreOverlayConfig.OnModSettingsApplied();
+            Config.OnModSettingsApplied();
         }
 
         public override void OnUpdate()

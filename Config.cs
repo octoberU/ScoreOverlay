@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace ScoreOverlay
 {
-    public static class ScoreOverlayConfig
+    public static class Config
     {
         public const string Category = "ScoreOverlay";
 
@@ -28,7 +28,7 @@ namespace ScoreOverlay
 
         public static void OnModSettingsApplied()
         {
-            foreach (var fieldInfo in typeof(ScoreOverlayConfig).GetFields(BindingFlags.Static | BindingFlags.Public))
+            foreach (var fieldInfo in typeof(Config).GetFields(BindingFlags.Static | BindingFlags.Public))
             {
                 if (fieldInfo.FieldType == typeof(int))
                     fieldInfo.SetValue(null, MelonPrefs.GetInt(Category, fieldInfo.Name));

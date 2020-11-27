@@ -51,11 +51,11 @@ namespace ScoreOverlay
         {
             PrepareOverlay();
             GetReferences();
-            canvasScaler.scaleFactor = ScoreOverlayConfig.OverlayScale;
+            canvasScaler.scaleFactor = Config.OverlayScale;
             FadeOutOverlay();
             overlay.SetActive(false);
             bottomRight.gameObject.SetActive(false);
-            topLeft.gameObject.SetActive(ScoreOverlayConfig.ShowModifiers);
+            topLeft.gameObject.SetActive(Config.ShowModifiers);
             kataConfig = KataConfig.I;
         }
         
@@ -147,7 +147,7 @@ namespace ScoreOverlay
 
         public static void UpdateHighscore(int score, int highscore)
         {
-            if (highscore == 0 || highscore > score || !ScoreOverlayConfig.ShowHighscoreDifference)
+            if (highscore == 0 || highscore > score || !Config.ShowHighscoreDifference)
             {
                 if (highscoreLabel.gameObject.activeSelf) highscoreLabel.gameObject.SetActive(false);
             }
