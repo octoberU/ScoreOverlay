@@ -1,4 +1,5 @@
 ﻿using Harmony;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -10,18 +11,25 @@ namespace ScoreOverlay
         public static string modsPath = Application.dataPath + "/../Mods/";
         public static string overlayPath = modsPath + "scoreoverlay.overlay";
 
+        [Obsolete]
         public static bool RunSafetyChecks() // Returns true if all checks pass and the mod has been installed correctly.
         {
             bool overlayAssetExists = File.Exists(overlayPath);
             return overlayAssetExists;
         }
 
+        /// <summary>
+        /// Removes all RTF tags from input strung.
+        /// </summary>
         public static string RemoveFormatting(string input)
         {
             System.Text.RegularExpressions.Regex rx = new System.Text.RegularExpressions.Regex("<[^>]*>");
             return rx.Replace(input, "");
         }
 
+        /// <summary>
+        /// Returns abbreviations of currently selected modifiers.
+        /// </summary>
         public static string GetModText()
         {
             var modifiers = GameplayModifiers.I;
