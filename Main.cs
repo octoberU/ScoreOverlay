@@ -39,6 +39,7 @@ namespace ScoreOverlay
                     score = scoreKeeper.mScore;
                     streak = scoreKeeper.mStreak;
                     UI.UpdateDisplay(score, streak);
+                    UI.UpdateHighscore(score, scoreKeeper.mHighScore);
                 }
             }
             else scoreKeeper = ScoreKeeper.I;

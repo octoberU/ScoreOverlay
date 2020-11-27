@@ -10,6 +10,7 @@ namespace ScoreOverlay
         public static bool ShowModifiers;
         public static bool ShowScore;
         public static bool ShowSongInfo;
+        public static bool ShowHighscoreDifference;
 
         public static float OverlayScale;
 
@@ -18,6 +19,7 @@ namespace ScoreOverlay
             MelonPrefs.RegisterBool(Category, nameof(ShowModifiers), true, "Display active modifiers during gameplay.");
             MelonPrefs.RegisterBool(Category, nameof(ShowScore), true, "Display score & streak during gameplay.");
             MelonPrefs.RegisterBool(Category, nameof(ShowSongInfo), true, "Display song info during gameplay.");
+            MelonPrefs.RegisterBool(Category, nameof(ShowHighscoreDifference), true, "Display score difference from your highscore");
 
             MelonPrefs.RegisterFloat(Category, nameof(OverlayScale), 1.4f, "Changes the scale of the overlay");
 

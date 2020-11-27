@@ -27,6 +27,7 @@ namespace ScoreOverlay
         public static TextMeshProUGUI scoreText;
         public static TextMeshProUGUI scoreLabel;
         public static TextMeshProUGUI comboText;
+        public static TextMeshProUGUI highscoreLabel;
 
         public static TextMeshProUGUI songInfo;
         public static TextMeshProUGUI mapperInfo;
@@ -86,6 +87,7 @@ namespace ScoreOverlay
             scoreText = bottomLeft.Find("ScoreText").GetComponent<TextMeshProUGUI>();
             scoreLabel = bottomLeft.Find("ScoreLabel").GetComponent<TextMeshProUGUI>();
             comboText = bottomLeft.Find("ComboText").GetComponent<TextMeshProUGUI>();
+            highscoreLabel = bottomLeft.Find("Highscore").GetComponent<TextMeshProUGUI>();
 
             songInfo = topRight.Find("SongInfo").GetComponent<TextMeshProUGUI>();
             mapperInfo = topRight.Find("MapperInfo").GetComponent<TextMeshProUGUI>();
@@ -123,11 +125,13 @@ namespace ScoreOverlay
             var scoreKeeper = ScoreKeeper.I;
             scoreText.text = scoreKeeper.GetScore().ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
             comboText.text = scoreKeeper.mStreak > 1 ? scoreKeeper.mStreak.ToString() + " Streak!" : "";
+            highscoreLabel.text = "";
 
             int aimAssistPercent = (int)(PlayerPreferences.I.AimAssistAmount.mVal * 100f);
             aimAssistLabel.text = aimAssistPercent != 100 ? $"{aimAssistPercent}% AA" : "";
             ModifierText.text = Utility.GetModText();
         }
+
 
 
         public static void UpdateDisplay(int score, int streak)
@@ -141,6 +145,18 @@ namespace ScoreOverlay
             }
         }
 
+        public static void UpdateHighscore(int score, int highscore)
+        {
+            if (highscore == 0 || highscore > score || !ScoreOverlayConfig.ShowHighscoreDifference)
+            {
+                if (highscoreLabel.gameObject.activeSelf) highscoreLabel.gameObject.SetActive(false);
+            }
+            else
+            {
+                highscoreLabel.gameObject.SetActive(true);
+                highscoreLabel.text = "New highscore! +" + (highscore-score).ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
+            }
+        }
 
         private static IEnumerator FadeOverlay(float aFrom, float aTo, float aTime)
         {
