@@ -36,7 +36,6 @@ namespace ScoreOverlay
         {
             if (scoreKeeper != null)
             {
-                ScoreKeeper scoreKeeper = ScoreKeeper.I;
                 if (scoreKeeper.mScore != score || scoreKeeper.mStreak != streak)
                 {
                     score = scoreKeeper.mScore;
