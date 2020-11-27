@@ -120,7 +120,7 @@ namespace ScoreOverlay
 
             songInfo.text = Utility.RemoveFormatting($"{data.artist} - {data.title}");
             mapperInfo.text = data.author;
-            difficultyLabel.text = $"<color={difficultyColor}>{currentDifficulty}</color>";
+            difficultyLabel.text = $"<color=#{difficultyColor}>{currentDifficulty}</color>";
 
             var scoreKeeper = ScoreKeeper.I;
             scoreText.text = scoreKeeper.GetScore().ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
@@ -153,8 +153,8 @@ namespace ScoreOverlay
             }
             else
             {
-                highscoreLabel.gameObject.SetActive(true);
-                highscoreLabel.text = "New highscore! +" + (highscore-score).ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
+                if (!highscoreLabel.gameObject.activeSelf) highscoreLabel.gameObject.SetActive(true);
+                highscoreLabel.text = "New highscore! +" + (score - highscore).ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
             }
         }
 
