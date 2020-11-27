@@ -18,8 +18,6 @@ namespace ScoreOverlay
         public override void OnApplicationStart()
         {
             ScoreOverlayConfig.RegisterConfig();
-            
-            Utility.RunSafetyChecks();
         }
 
         public override void OnLevelWasInitialized(int level)

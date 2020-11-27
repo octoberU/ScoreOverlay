@@ -11,12 +11,6 @@ namespace ScoreOverlay
         public static string modsPath = Application.dataPath + "/../Mods/";
         public static string overlayPath = modsPath + "scoreoverlay.overlay";
 
-        [Obsolete]
-        public static bool RunSafetyChecks() // Returns true if all checks pass and the mod has been installed correctly.
-        {
-            bool overlayAssetExists = File.Exists(overlayPath);
-            return overlayAssetExists;
-        }
 
         /// <summary>
         /// Removes all RTF tags from input strung.
