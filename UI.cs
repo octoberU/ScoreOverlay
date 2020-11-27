@@ -113,10 +113,12 @@ namespace ScoreOverlay
 
         public static void UpdateUiInfo(SongList.SongData data)
         {
+            var currentDifficulty = kataConfig.mDifficulty;
+            string difficultyColor = ColorUtility.ToHtmlStringRGB(kataConfig.GetDifficultyColor(currentDifficulty));
 
             songInfo.text = Utility.RemoveFormatting($"{data.artist} - {data.title}");
             mapperInfo.text = data.author;
-            difficultyLabel.text = kataConfig.mDifficulty.ToString();
+            difficultyLabel.text = $"<color={difficultyColor}>{currentDifficulty}</color>";
 
             var scoreKeeper = ScoreKeeper.I;
             scoreText.text = scoreKeeper.GetScore().ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
