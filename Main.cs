@@ -3,7 +3,7 @@ using ScoreOverlay;
 
 
 [assembly: MelonGame("Harmonix Music Systems, Inc.", "Audica")]
-[assembly: MelonInfo(typeof(ScoreOverlayMod), "Score Overlay", "2.0.1", "octo", "https://github.com/octoberU/ScoreOverlay")]
+[assembly: MelonInfo(typeof(ScoreOverlayMod), "Score Overlay", "2.0.2", "octo", "https://github.com/octoberU/ScoreOverlay")]
 [assembly: MelonOptionalDependencies("SongBrowser")]
 
 namespace ScoreOverlay
