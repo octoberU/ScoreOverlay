@@ -28,6 +28,7 @@ namespace ScoreOverlay
         public override void OnModSettingsApplied()
         {
             Config.OnModSettingsApplied();
+            UI.OnModSettingsApplied();
         }
 
         public override void OnUpdate()

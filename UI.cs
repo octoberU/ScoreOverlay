@@ -51,12 +51,12 @@ namespace ScoreOverlay
         {
             PrepareOverlay();
             GetReferences();
-            canvasScaler.scaleFactor = Config.OverlayScale;
             FadeOutOverlay();
             overlay.SetActive(false);
             bottomRight.gameObject.SetActive(false);
             topLeft.gameObject.SetActive(Config.ShowModifiers);
             kataConfig = KataConfig.I;
+            OnModSettingsApplied();
         }
         
         public static void PrepareOverlay()
@@ -132,6 +132,13 @@ namespace ScoreOverlay
             ModifierText.text = Utility.GetModText();
         }
 
+        public static void OnModSettingsApplied()
+        {
+            canvasScaler.scaleFactor = Config.OverlayScale;
+            topRight.gameObject.SetActive(Config.ShowSongInfo);
+            topLeft.gameObject.SetActive(Config.ShowModifiers);
+            bottomLeft.gameObject.SetActive(Config.ShowScore);
+        }
 
 
         public static void UpdateDisplay(int score, int streak)

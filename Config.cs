@@ -21,7 +21,7 @@ namespace ScoreOverlay
             MelonPrefs.RegisterBool(Category, nameof(ShowSongInfo), true, "Display song info during gameplay.");
             MelonPrefs.RegisterBool(Category, nameof(ShowHighscoreDifference), true, "Display score difference from your highscore");
 
-            MelonPrefs.RegisterFloat(Category, nameof(OverlayScale), 1.4f, "Changes the scale of the overlay");
+            MelonPrefs.RegisterFloat(Category, nameof(OverlayScale), 1.4f, "Changes the scale of the overlay [0,5,0.2,1.4]");
 
             OnModSettingsApplied();
         }
