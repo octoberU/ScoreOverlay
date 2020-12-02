@@ -1,9 +1,10 @@
 using MelonLoader;
 using ScoreOverlay;
-
+using TMPro;
+using UnityEngine;
 
 [assembly: MelonGame("Harmonix Music Systems, Inc.", "Audica")]
-[assembly: MelonInfo(typeof(ScoreOverlayMod), "Score Overlay", "2.0.2", "octo", "https://github.com/octoberU/ScoreOverlay")]
+[assembly: MelonInfo(typeof(ScoreOverlayMod), "Score Overlay", "2.0.3", "octo", "https://github.com/octoberU/ScoreOverlay")]
 [assembly: MelonOptionalDependencies("SongBrowser")]
 
 namespace ScoreOverlay
@@ -11,24 +12,27 @@ namespace ScoreOverlay
     public class ScoreOverlayMod : MelonMod
     {
         public ScoreKeeper scoreKeeper;
+        public static UI ui;
 
         static int score = 0;
         static int streak = 0;
 
         public override void OnApplicationStart()
         {
+            ui = new UI();
             Config.RegisterConfig();
+
         }
 
         public override void OnLevelWasInitialized(int level)
         {
-            if (level == 1) UI.Initialize();
+            if (level == 1) ui.Initialize();
         }
 
         public override void OnModSettingsApplied()
         {
             Config.OnModSettingsApplied();
-            UI.OnModSettingsApplied();
+            ui.OnModSettingsApplied();
         }
 
         public override void OnUpdate()
@@ -39,8 +43,8 @@ namespace ScoreOverlay
                 {
                     score = scoreKeeper.mScore;
                     streak = scoreKeeper.mStreak;
-                    UI.UpdateDisplay(score, streak);
-                    UI.UpdateHighscore(score, scoreKeeper.mHighScore);
+                    ui.UpdateDisplay(score, streak);
+                    ui.UpdateHighscore(score, scoreKeeper.mHighScore);
                 }
             }
             else scoreKeeper = ScoreKeeper.I;
@@ -50,6 +54,7 @@ namespace ScoreOverlay
         {
             score = streak = 0;
         }
+
     }
 }
 

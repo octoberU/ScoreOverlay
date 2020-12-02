@@ -12,42 +12,42 @@ using System.Globalization;
 
 namespace ScoreOverlay
 {
-    internal static class UI
+    public class UI
     {
-        public static GameObject overlay;
-        private static GameplayStats gameplayStats;
+        public GameObject overlay;
+        private GameplayStats gameplayStats;
 
-        private static KataConfig kataConfig;
+        private KataConfig kataConfig;
 
-        public static Canvas mainCanvas;
-        public static CanvasScaler canvasScaler;
-        public static CanvasGroup canvasGroup;
-        public static Animator animator;
+        public Canvas mainCanvas;
+        public CanvasScaler canvasScaler;
+        public CanvasGroup canvasGroup;
+        public Animator animator;
 
-        public static TextMeshProUGUI scoreText;
-        public static TextMeshProUGUI scoreLabel;
-        public static TextMeshProUGUI comboText;
-        public static TextMeshProUGUI highscoreLabel;
+        public TextMeshProUGUI scoreText;
+        public TextMeshProUGUI scoreLabel;
+        public TextMeshProUGUI comboText;
+        public TextMeshProUGUI highscoreLabel;
 
-        public static TextMeshProUGUI songInfo;
-        public static TextMeshProUGUI mapperInfo;
-        public static TextMeshProUGUI difficultyLabel;
+        public TextMeshProUGUI songInfo;
+        public TextMeshProUGUI mapperInfo;
+        public TextMeshProUGUI difficultyLabel;
 
-        public static TextMeshProUGUI averageTimingLabel;
-        public static TextMeshProUGUI averageAimLabel;
-        public static TextMeshProUGUI misfiresLabel;
+        public TextMeshProUGUI averageTimingLabel;
+        public TextMeshProUGUI averageAimLabel;
+        public TextMeshProUGUI misfiresLabel;
 
-        public static TextMeshProUGUI aimAssistLabel;
-        public static TextMeshProUGUI ModifierText;
+        public TextMeshProUGUI aimAssistLabel;
+        public TextMeshProUGUI ModifierText;
 
-        public static Transform bottomLeft;
-        public static Transform topRight;
-        public static Transform bottomRight;
-        public static Transform topLeft;
+        public Transform bottomLeft;
+        public Transform topRight;
+        public Transform bottomRight;
+        public Transform topLeft;
 
-        public static bool loaded = false;
+        public bool loaded = false;
 
-        public static void Initialize()
+        public void Initialize()
         {
             PrepareOverlay();
             GetReferences();
@@ -59,7 +59,7 @@ namespace ScoreOverlay
             OnModSettingsApplied();
         }
         
-        public static void PrepareOverlay()
+        public void PrepareOverlay()
         {
             var scoreOverlay = new Il2CppSystem.IO.MemoryStream(AudicaModding.Properties.Resources.scoreoverlay);
             var overlayBundle = Il2CppAssetBundleManager.LoadFromStream(scoreOverlay);
@@ -72,7 +72,7 @@ namespace ScoreOverlay
             overlay.SetActive(true);
         }
 
-        public static void GetReferences()
+        public void GetReferences()
         {
             mainCanvas = overlay.GetComponent<Canvas>();
             canvasGroup = overlay.GetComponent<CanvasGroup>();
@@ -102,18 +102,18 @@ namespace ScoreOverlay
             loaded = true;
         }
 
-        public static void FadeInOverlay()
+        public void FadeInOverlay()
         {
             if(!overlay.activeSelf) overlay.SetActive(true);
             animator.Play("FadeIn");
         }
 
-        public static void FadeOutOverlay()
+        public void FadeOutOverlay()
         {
             animator.Play("FadeOut");
         }
 
-        public static void UpdateUiInfo(SongList.SongData data)
+        public void UpdateUiInfo(SongList.SongData data)
         {
             var currentDifficulty = kataConfig.mDifficulty;
             string difficultyColor = ColorUtility.ToHtmlStringRGB(kataConfig.GetDifficultyColor(currentDifficulty));
@@ -132,7 +132,7 @@ namespace ScoreOverlay
             ModifierText.text = Utility.GetModText();
         }
 
-        public static void OnModSettingsApplied()
+        public void OnModSettingsApplied()
         {
             canvasScaler.scaleFactor = Config.OverlayScale;
             topRight.gameObject.SetActive(Config.ShowSongInfo);
@@ -141,7 +141,7 @@ namespace ScoreOverlay
         }
 
 
-        public static void UpdateDisplay(int score, int streak)
+        public void UpdateDisplay(int score, int streak)
         {
             scoreText.text = score.ToString("N0", CultureInfo.CreateSpecificCulture("en-US"));
             comboText.text = streak > 1 ? streak.ToString() + " Streak!" : "";
@@ -152,7 +152,7 @@ namespace ScoreOverlay
             }
         }
 
-        public static void UpdateHighscore(int score, int highscore)
+        public void UpdateHighscore(int score, int highscore)
         {
             if (highscore == 0 || highscore > score || !Config.ShowHighscoreDifference)
             {
@@ -165,14 +165,5 @@ namespace ScoreOverlay
             }
         }
 
-        private static IEnumerator FadeOverlay(float aFrom, float aTo, float aTime)
-        {
-            for (float t = 0.05f; t < 1.0f; t += Time.deltaTime / aTime)
-            {
-                canvasGroup.alpha = Mathf.Lerp(aFrom, aTo, t);
-                MelonLogger.Log(canvasGroup.alpha);
-                yield return null;
-            }
-        }
     }
 }

@@ -13,11 +13,11 @@ namespace ScoreOverlay
         {
             private static void Postfix(AudioDriver __instance)
             {
-                if (UI.loaded)
+                if (ScoreOverlayMod.ui.loaded)
                 {
                     ScoreOverlayMod.ResetTracker();
-                    UI.FadeInOverlay();
-                    UI.UpdateUiInfo(SongDataHolder.I.songData);
+                    ScoreOverlayMod.ui.FadeInOverlay();
+                    ScoreOverlayMod.ui.UpdateUiInfo(SongDataHolder.I.songData);
                     
                     
                 }
@@ -29,7 +29,7 @@ namespace ScoreOverlay
         {
             private static void Postfix(InGameUI __instance)
             {
-                UI.FadeOutOverlay();
+                ScoreOverlayMod.ui.FadeOutOverlay();
             }
 
 
@@ -40,7 +40,7 @@ namespace ScoreOverlay
         {
             private static void Postfix(InGameUI __instance)
             {
-                UI.FadeOutOverlay();
+                ScoreOverlayMod.ui.FadeOutOverlay();
 
             }
         }
