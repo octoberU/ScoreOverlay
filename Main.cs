@@ -1,16 +1,21 @@
 using MelonLoader;
 using ScoreOverlay;
+using System.Reflection;
 using TMPro;
 using UnityEngine;
 
+
+[assembly: AssemblyVersion(ScoreOverlayMod.VERSION)]
+[assembly: AssemblyFileVersion(ScoreOverlayMod.VERSION)]
 [assembly: MelonGame("Harmonix Music Systems, Inc.", "Audica")]
-[assembly: MelonInfo(typeof(ScoreOverlayMod), "Score Overlay", "2.0.3", "octo", "https://github.com/octoberU/ScoreOverlay")]
+[assembly: MelonInfo(typeof(ScoreOverlayMod), "Score Overlay", ScoreOverlayMod.VERSION, "octo", "https://github.com/octoberU/ScoreOverlay")]
 [assembly: MelonOptionalDependencies("SongBrowser")]
 
 namespace ScoreOverlay
 {
     public class ScoreOverlayMod : MelonMod
     {
+        public const string VERSION = "2.0.4";
         public ScoreKeeper scoreKeeper;
         public static UI ui;
 
